@@ -18,8 +18,8 @@ private:
 
 	void insert(Nod*, int);
 	void clear_tree(Nod*);
-	void inorder_traversal(Nod*);
-	void display_tree(Nod*, int);
+	void inorder_traversal(Nod*, std::ostream&);
+	void display_tree(Nod*, int, std::ostream&);
 
 public:
 	BinarySearchTree() : Tree(0), root(nullptr) { }
@@ -28,12 +28,13 @@ public:
 	BinarySearchTree(const BinarySearchTree& src);
 	~BinarySearchTree();
 	
-	//Nod* search(int value);
-	//TODO: OPERATOR OVERLOADING
 	void remove(int value);
 	void insert(int value);
 	void clear_tree();
-	void display();
-	void display_tree();
+	void display(std::ostream&);
+
+	BinarySearchTree& operator=(const BinarySearchTree& other);
+	friend std::istream& operator>>(std::istream& in, BinarySearchTree& tree);
+	friend std::ostream& operator<<(std::ostream& out, BinarySearchTree& tree);
 };
 

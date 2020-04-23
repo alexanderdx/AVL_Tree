@@ -60,7 +60,7 @@ Nod* BinarySearchTree::remove(Nod* node, int value)
 		else {									// nod cu ambii fii
 			Nod* minRightSubtree = findMin(node->get_right());
 			node->set_data(minRightSubtree->get_data());
-			node->set_right(remove(minRightSubtree, minRightSubtree->get_data()));
+			node->set_right(remove(node->get_right(), minRightSubtree->get_data()));
 		}
 	}
 	return node;
@@ -115,7 +115,7 @@ void BinarySearchTree::insert(Nod* leaf, int value)
 			insert(leaf->get_left(), value);
 		}
 	}
-	else {
+	else if (value > leaf->get_data()) {
 		if (leaf->get_right() == nullptr) {
 			set_nrNoduri(get_nrNoduri() + 1);
 			leaf->set_right(new Nod(value));
@@ -136,21 +136,15 @@ void BinarySearchTree::clear_tree(Nod* root)
 	delete root;
 }
 
-void BinarySearchTree::inorder_traversal(Nod* root)
+void BinarySearchTree::inorder_traversal(Nod* root, std::ostream& out)
 {
 	if (root == nullptr)
 		return;
 
-	inorder_traversal(root->get_left());
-	std::cout << root->get_data() << ' ';
-	inorder_traversal(root->get_right());
+	inorder_traversal(root->get_left(), out);
+	out << root->get_data() << ' ';
+	inorder_traversal(root->get_right(), out);
 }
-
-void BinarySearchTree::display()
-{
-	inorder_traversal(root);
-}
- 
 
 void BinarySearchTree::clear_tree()
 {
@@ -167,27 +161,66 @@ void BinarySearchTree::insert(int value)
 }
 
 
-void BinarySearchTree::display_tree(Nod* node, int spaces)
+void BinarySearchTree::display_tree(Nod* node, int spaces, std::ostream& out)
 {
 	if (node)
 	{
-		display_tree(node->get_right(), spaces + 4);
+		display_tree(node->get_right(), spaces + 4, out);
 
 		for (int i = 0; i < spaces; ++i)
-			std::cout << ' ';
+			out << ' ';
 		
-		if (node) 
-			std::cout << "   " << node->get_data() << std::endl;
+		if (node == root)
+			out << "->  ";
+		else out << "    ";
 
-		display_tree(node->get_left(), spaces + 4);
+		out << node->get_data() << std::endl;
+
+		display_tree(node->get_left(), spaces + 4, out);
 	}
 }
 
 
-void BinarySearchTree::display_tree()
+void BinarySearchTree::display(std::ostream& out)
 {
-	//TODO: EXCEPTION FOR NULLPTR
-	std::cout << "\n\n";
-	display_tree(root, 0);
-	std::cout << "\n\n";
+	out << "\n\n";
+	inorder_traversal(root, out);
+}
+
+
+std::istream& operator>>(std::istream& in, BinarySearchTree& tree)
+{
+	int value;
+	in >> value;
+	while (value != 0)
+	{
+		tree.insert(value);
+		in >> value;
+	}
+
+	return in;
+}
+
+std::ostream& operator<<(std::ostream& out, BinarySearchTree& tree)
+{
+	if (tree.root == nullptr)
+		out << "Arbore vid!\n";
+	else {
+		out << "\n\n";
+		tree.display_tree(tree.root, 0, out);
+		out << "\n\n";
+	}
+	return out;
+}
+
+
+BinarySearchTree& BinarySearchTree::operator=(const BinarySearchTree& other)
+{
+	if (this != &other)
+	{
+		BinarySearchTree temp(other);
+		std::swap(temp.root, root);
+	}
+
+	return *this;
 }

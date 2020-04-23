@@ -26,8 +26,8 @@ private:
     void set_echilibru(Nod_AVL*);
     void print_echilibru(Nod_AVL*);
     void clear_tree(Nod_AVL*);
-    void inorder_traversal(Nod_AVL*);
-    void display_tree(Nod_AVL*, int);
+    void inorder_traversal(Nod_AVL*, std::ostream&);
+    void display_tree(Nod_AVL*, int, std::ostream&);
 
 public:
     AVL_Tree() : Tree(0), root(nullptr) { }
@@ -39,6 +39,10 @@ public:
     void insert(int value);
     void remove(int value);
     void clear_tree();
-    void display_tree();
+    void display(std::ostream&);
+
+    AVL_Tree& operator=(const AVL_Tree& other);
+    friend std::istream& operator>>(std::istream& in, AVL_Tree& tree);
+    friend std::ostream& operator<<(std::ostream& out, AVL_Tree& tree);
 };
 

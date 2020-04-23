@@ -83,7 +83,7 @@ Nod_AVL* AVL_Tree::insert(Nod_AVL* root, int value)
 		root->set_left(insert(root->get_left(), value));
 		root = rebalance(root);
 	}
-	else if (value >= root->get_data()) {
+	else if (value > root->get_data()) {
 		root->set_right(insert(root->get_right(), value));
 		root = rebalance(root);
 	}
@@ -158,14 +158,14 @@ AVL_Tree::~AVL_Tree()
 	clear_tree();
 }
 
-void AVL_Tree::inorder_traversal(Nod_AVL* root)
+void AVL_Tree::inorder_traversal(Nod_AVL* root, std::ostream& out)
 {
 	if (root == nullptr)
 		return;
 
-	inorder_traversal(root->get_left());
-	std::cout << root->get_data() << ' ';
-	inorder_traversal(root->get_right());
+	inorder_traversal(root->get_left(), out);
+	out << root->get_data() << ' ';
+	inorder_traversal(root->get_right(), out);
 }
 
 void AVL_Tree::insert(int value)
@@ -176,11 +176,18 @@ void AVL_Tree::insert(int value)
 void AVL_Tree::remove(int value)
 {
 	root = remove(root, value);
+	root = rebalance(root);
 }
 
 void AVL_Tree::clear_tree()
 {
 	clear_tree(root);
+}
+
+void AVL_Tree::display(std::ostream& out)
+{
+	out << "\n\n";
+	inorder_traversal(root, out);
 }
 
 Nod_AVL* AVL_Tree::remove(Nod_AVL* node, int value)
@@ -213,39 +220,65 @@ Nod_AVL* AVL_Tree::remove(Nod_AVL* node, int value)
 		else {									// nod cu ambii fii
 			Nod_AVL* minRightSubtree = findMin(node->get_right());
 			node->set_data(minRightSubtree->get_data());
-			node->set_right(remove(minRightSubtree, minRightSubtree->get_data()));
+			node->set_right(remove(node->get_right(), minRightSubtree->get_data()));
 		}
 	}
 
-	if (node == nullptr)
-		return node;
-	
-	node = rebalance(node);
 	return node;
 }
 
 
-void AVL_Tree::display_tree(Nod_AVL* root, int level)
+void AVL_Tree::display_tree(Nod_AVL* root, int level, std::ostream& out)
 {
 	if (root)
 	{
-		display_tree(root->get_right(), level + 1);
-		std::cout << '\n';
+		display_tree(root->get_right(), level + 4, out);
+	
+		for (int i = 0; i < level; ++i)
+			out << " ";
 		
 		if (root == this->root)
-			std::cout << "\nRoot-> ";
+			out << "-> ";
+		else out << "    ";
 
-		for (int i = 0; i < level && root != this->root; ++i)
-			std::cout << "     ";
-		
-		std::cout << "    " << root->get_data() << std::endl;
-		display_tree(root->get_left(), level + 1);
+		out << root->get_data() << std::endl;
+
+		display_tree(root->get_left(), level + 4, out);
 	}
 }
 
-void AVL_Tree::display_tree()
+AVL_Tree& AVL_Tree::operator=(const AVL_Tree& other)
 {
-	std::cout << "\n\n";
-	display_tree(root, 1);
-	std::cout << "\n\n";
+	if (this != &other)
+	{
+		AVL_Tree temp(other);
+		std::swap(temp.root, root);
+	}
+
+	return *this;
+}
+
+std::istream& operator>>(std::istream& in, AVL_Tree& tree)
+{
+	int value;
+	in >> value;
+	while (value != 0)
+	{
+		tree.insert(value);
+		in >> value;
+	}
+
+	return in;
+}
+
+std::ostream& operator<<(std::ostream& out, AVL_Tree& tree)
+{
+	if (tree.root == nullptr)
+		out << "Arbore vid!\n";
+	else {
+		out << "\n\n";
+		tree.display_tree(tree.root, 0, out);
+		out << "\n\n";
+	}
+	return out;
 }
